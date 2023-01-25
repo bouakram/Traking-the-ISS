@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS file -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+    <!-- Leaflet JavaScript file -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+    <title>project three</title>
+</head>
+
+<body>
+    <h1>Where is the ISS?</h1>
+
+    <p>
+        latitude: <span id="lat"></span> <br>
+        longitude: <span id="lon"></span>
+    </p>
+    <!-- div element with a certain id where the map will be: -->
+    <div id="issmap" style="height: 180px;"></div>
+
+    <script>
+
+        // initialize the map and set its view to our chosen geographical coordinates and a zoom level
+        const map = L.map('issmap').setView([0, 0], 2);
+        // the attribution text
+        const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+
+        // tile layer to add to our map, in this case it’s a OpenStreetMap tile layer
+        const tileurl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        const title = L.tileLayer(tileurl, { attribution })
+        title.addTo(map)
+
+        // costom icon
+        const issicon = L.icon({
+            iconUrl: 'Space_station.svg.png',
+            iconSize: [38, 50],
+            iconAnchor: [25, 16],
+        });
+
+        // adding marker to the map (the icons in this case)
+        const marker = L.marker([0, 0], { icon: issicon }).addTo(map)
+
+        // geting the iss cordinate
+        async function getISS() {
+            // fetching the api 
+            const respons = await fetch('https://api.wheretheiss.at/v1/satellites/25544')
+            const data = await respons.json()
+
+            // the cordinate
+            const { latitude, longitude } = data
+            // L.marker([latitude, longitude]).addTo(map)
+            marker.setLatLng([latitude, longitude])
+            document.getElementById('lat').innerHTML = latitude
+            document.getElementById('lon').innerHTML = longitude
+        }
+        getISS()
+        // updating the cordinate every 1sec
+        setInterval(getISS, 1000)
+    </script>
+</body>
+
+</html>
